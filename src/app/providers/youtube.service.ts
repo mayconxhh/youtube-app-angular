@@ -1,5 +1,6 @@
+import { environment } from './../../environments/environment.prod';
 import { Injectable } from '@angular/core';
-import { Http, URLSearchParams } from '@angular/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -8,31 +9,30 @@ import { map } from 'rxjs/operators';
 export class YoutubeService {
 
 	private ytUrl:string = 'https://www.googleapis.com/youtube/v3';
-	private apiKey:string = '...';
-	private playList:string = 'UUc7_woMAIVIW2mAr1rPCsFQ';
+	private apiKey:string = environment.YOUTUBE_KEY;
+	// private playList:string = 'UUc7_woMAIVIW2mAr1rPCsFQ';
 	private nextToken:any;
 
-  constructor(public http:Http ) { }
+  constructor(public http:HttpClient ) { }
 
   getVideos(){
 
   	let url = `${this.ytUrl}/videos`;
-  	let params = new URLSearchParams();
-
-
-  	params.set('part', 'snippet,id');
-  	params.set('maxResults', '10');
-  	params.set('chart', 'mostPopular');
-  	// params.set('playlistId', this.playList);
-  	params.set('key', this.apiKey);
+		let params:any = {};
+		
+  	params.part = 'snippet,id';
+  	params.maxResults = '10';
+  	params.chart = 'mostPopular';
+  	// params.playlistId = this.playList;
+  	params.key = this.apiKey;
 
   	if (this.nextToken) {
-  		params.set('pageToken', this.nextToken);
-  	}
+  		params.pageToken = this.nextToken;
+		}
 
-  	return this.http.get(url, { search: params })
+  	return this.http.get(url, { params: params } )
   		.pipe(map( (res:any) => {
-  			var data = res.json();
+  			var data = res;
   			this.nextToken = data.nextPageToken;
 
   			let videos:any[] = [];
